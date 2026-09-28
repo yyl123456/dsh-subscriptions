@@ -65,6 +65,7 @@
   "devDependencies": {
     "@deepseek-ai/dsh-llm": "0.1.0-rc.8",
     "@types/node": "^22.20.2",
+    "eslint": "^9.39.5",
     "typescript": "^7.0.2"
   }
 }
