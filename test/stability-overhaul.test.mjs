@@ -17,6 +17,10 @@ test('isSwitchableError correctly handles 401, 403, 429, 5xx', () => {
   assert.equal(isSwitchableError({ code: 'RATE_LIMIT' }), true)
   assert.equal(isSwitchableError({ code: 'LICENSE_REQUIRED' }), true)
   assert.equal(isSwitchableError({ code: 'AUTH' }), false)
+  assert.equal(isSwitchableError({ code: 'EMPTY_RESPONSE' }), true)
+  assert.equal(isSwitchableError({ code: 'TIMEOUT' }), true)
+  assert.equal(isSwitchableError({ name: 'TimeoutError', message: 'operation aborted due to timeout' }), true)
+  assert.equal(isSwitchableError({ name: 'AbortError', message: 'stream aborted by client' }), false)
 })
 
 test('streamWithRotation does not rotate mid-stream after first chunk is delivered', async () => {

@@ -186,6 +186,39 @@ test('antigravity stream sends pro credits and session id', async () => {
   assert.ok(chunks.some((c) => c.type === 'text-delta' && c.text === 'ok'))
 })
 
+test('antigravity retries an empty stream before returning content', async () => {
+  let requests = 0
+  const fetchImpl = async () => {
+    requests += 1
+    return new Response(requests === 1
+      ? sse([])
+      : sse([JSON.stringify({ candidates: [{ content: { parts: [{ text: 'recovered' }] } }] })]), { status: 200 })
+  }
+  const chunks = []
+  for await (const chunk of getVendor('antigravity').streamOnce({
+    blob: { accessToken: 'at', projectId: 'proj', paidTierId: 'tier', sessionId: 'sess' },
+    options: { model: 'gemini-3-flash', messages: [{ role: 'user', content: [{ type: 'text', text: 'hi' }] }] },
+    fetchImpl,
+    headers: {},
+    config: {},
+  })) chunks.push(chunk)
+  assert.equal(requests, 2)
+  assert.deepEqual(chunks.filter((chunk) => chunk.type === 'text-delta').map((chunk) => chunk.text), ['recovered'])
+})
+
+test('antigravity rejects two empty streams instead of finishing silently', async () => {
+  let requests = 0
+  const stream = getVendor('antigravity').streamOnce({
+    blob: { accessToken: 'at', projectId: 'proj', paidTierId: 'tier', sessionId: 'sess' },
+    options: { model: 'gemini-3-flash', messages: [{ role: 'user', content: [{ type: 'text', text: 'hi' }] }] },
+    fetchImpl: async () => { requests += 1; return new Response(sse([]), { status: 200 }) },
+    headers: {},
+    config: {},
+  })
+  await assert.rejects(async () => { for await (const _ of stream) {} }, { code: 'EMPTY_RESPONSE' })
+  assert.equal(requests, 2)
+})
+
 test('antigravity listModels reads object catalog', async () => {
   const fetchImpl = async () => Response.json({
     models: {
