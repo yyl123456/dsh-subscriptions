@@ -28,11 +28,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GooDAnDReaDY/dsh-subscriptions.git"
+    "url": "git+https://github.com/yyl123456/dsh-subscriptions.git"
   },
-  "homepage": "https://github.com/GooDAnDReaDY/dsh-subscriptions",
+  "homepage": "https://github.com/yyl123456/dsh-subscriptions",
   "bugs": {
-    "url": "https://github.com/GooDAnDReaDY/dsh-subscriptions/issues"
+    "url": "https://github.com/yyl123456/dsh-subscriptions/issues"
   },
   "scripts": {
     "test": "eslint lib/ && node --test test/*.test.mjs",
