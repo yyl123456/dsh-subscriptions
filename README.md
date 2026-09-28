@@ -1,5 +1,7 @@
 # 📦 @goodandready/dsh-subscriptions
 
+> Personal fork based on upstream `v0.6.8`. This branch contains Antigravity tool-call and conversation-replay fixes. To use your own Google OAuth client, set `DSH_ANTIGRAVITY_CLIENT_ID` and `DSH_ANTIGRAVITY_CLIENT_SECRET` in the dsh process environment. No user OAuth tokens or local dsh credential files belong in this repository.
+
 <div align="center">
 
 <h3>Personal AI Subscription Bridge, Multi-Account Pool Rotation & Zero-Leak OAuth for DeepSeek Harness</h3>
