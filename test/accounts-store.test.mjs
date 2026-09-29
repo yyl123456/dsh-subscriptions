@@ -30,7 +30,7 @@ function makeStore(credentials) {
 
 test('normalizeSlots keeps valid slots, drops junk and dedupes', () => {
   const slots = normalizeSlots([
-    { provider: 'codex', index: 1, label: 'main' },
+    { provider: 'codex', index: 1, label: 'main', proxyUrl: 'socks5://localhost:1080' },
     { provider: 'codex', index: 1, label: 'duplicate ref' },
     { provider: 'nope', index: 1 },
     { provider: 'claude', index: 0 },
@@ -42,6 +42,7 @@ test('normalizeSlots keeps valid slots, drops junk and dedupes', () => {
   ])
   assert.deepEqual(slots.map((s) => s.ref).sort(), ['CLAUDE_OAUTH_4', 'CODEX_OAUTH_1'].sort())
   assert.equal(slots.find((s) => s.ref === 'CODEX_OAUTH_1').label, 'main')
+  assert.equal(slots.find((s) => s.ref === 'CODEX_OAUTH_1').proxyUrl, 'socks5://localhost:1080')
   assert.equal(slots.find((s) => s.ref === 'CLAUDE_OAUTH_4').label, 'second')
 })
 

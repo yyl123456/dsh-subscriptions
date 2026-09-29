@@ -2,6 +2,8 @@
 
 > 基于上游 `v0.6.8` 的个人分支，包含 Antigravity 工具调用和会话回放修复。使用自己的 Google OAuth 客户端时，在 dsh 进程环境中设置 `DSH_ANTIGRAVITY_CLIENT_ID` 和 `DSH_ANTIGRAVITY_CLIENT_SECRET`。本仓库不包含用户 OAuth token 或本机 dsh 凭据文件。
 
+Antigravity 模型档位、TUN 与账号代理的排查方法见 [Antigravity 模型与连接排查](docs/antigravity-models-and-connectivity.md)。
+
 <div align="center">
 
 <h3>DeepSeek Harness 个人 AI 订阅桥接、多账号池轮换与零泄漏 OAuth 插件</h3>

@@ -186,6 +186,25 @@ test('antigravity stream sends pro credits and session id', async () => {
   assert.ok(chunks.some((c) => c.type === 'text-delta' && c.text === 'ok'))
 })
 
+test('Antigravity High and Low choices call the tiered model with the selected thinking level', async () => {
+  for (const level of ['high', 'low']) {
+    let body
+    const fetchImpl = async (_url, init) => {
+      body = JSON.parse(init.body)
+      return new Response(sse([JSON.stringify({ candidates: [{ content: { parts: [{ text: 'ok' }] } }] })]), { status: 200 })
+    }
+    for await (const _ of getVendor('antigravity').streamOnce({
+      blob: { accessToken: 'at', projectId: 'proj', paidTierId: 'free-tier', sessionId: 'sess' },
+      options: { model: `gemini-3.8-flash-${level}`, messages: [{ role: 'user', content: [{ type: 'text', text: 'hi' }] }] },
+      fetchImpl,
+      headers: {},
+      config: {},
+    })) {}
+    assert.equal(body.model, 'gemini-3.8-flash-tiered')
+    assert.deepEqual(body.request.generationConfig.thinkingConfig, { thinkingLevel: level })
+  }
+})
+
 test('antigravity retries an empty stream before returning content', async () => {
   let requests = 0
   const fetchImpl = async () => {

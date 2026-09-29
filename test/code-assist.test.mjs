@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {
   antigravityPlatform, antigravityMetadata, antigravityIdentityHeaders, assistHeaders,
   postAssist, accountFromLoad, resolveProjectId, discoverProject,
-  fetchAvailableModels, retrieveQuotaPercent, streamEnvelope, inspectGoogleAccount,
+  fetchAvailableModels, antigravityTieredAlias, retrieveQuotaPercent, streamEnvelope, inspectGoogleAccount,
   CODE_ASSIST,
 } from '../lib/code-assist.js'
 
@@ -124,6 +124,8 @@ test('fetchAvailableModels filters, normalizes and sorts the live catalog', asyn
       { id: 'chat_hidden', displayName: 'Hidden' },
       { id: 'internal', displayName: 'Internal', isInternal: true },
       { id: 'no-display', displayName: '' },
+      { id: 'gemini-3.8-flash-tiered', displayName: '' },
+      { id: 'tab_hidden', displayName: 'Tab' },
       { id: 'zeta', displayName: 'Zeta' },
       'plain-id',
       'chat_plain',
@@ -137,6 +139,8 @@ test('fetchAvailableModels filters, normalizes and sorts the live catalog', asyn
   assert.ok(!ids.includes('chat_hidden'))
   assert.ok(!ids.includes('internal'))
   assert.ok(!ids.includes('no-display'))
+  assert.ok(ids.includes('gemini-3.8-flash-tiered'))
+  assert.ok(!ids.includes('tab_hidden'))
   assert.ok(!ids.includes('chat_plain'))
   const pro = out.find((m) => m.id === 'gemini-pro')
   assert.equal(pro.name, 'Gemini Pro')
@@ -148,6 +152,19 @@ test('fetchAvailableModels filters, normalizes and sorts the live catalog', asyn
 test('fetchAvailableModels accepts the object-map catalog shape', async () => {
   const out = await fetchAvailableModels(stub({ models: { 'models/alpha': { displayName: 'Alpha' } } }), 'tok', {}, [], 'antigravity')
   assert.deepEqual(out.map((m) => m.id), ['alpha'])
+})
+
+test('Antigravity tiered catalog exposes High, Medium and Low choices', async () => {
+  const rows = await fetchAvailableModels(stub({ models: {
+    'gemini-3.8-flash-tiered': { displayName: '', maxTokens: 1000 },
+  } }), 'tok', {}, [], 'antigravity')
+  for (const level of ['high', 'medium', 'low']) {
+    const choice = rows.find((row) => row.id === `gemini-3.8-flash-${level}`)
+    assert.equal(choice.name, `Gemini 3.8 Flash (${level[0].toUpperCase()}${level.slice(1)})`)
+    assert.equal(choice.contextWindow, 1000)
+    assert.deepEqual(antigravityTieredAlias(choice.id), { model: 'gemini-3.8-flash-tiered', thinkingLevel: level })
+  }
+  assert.equal(antigravityTieredAlias('gemini-3.6-flash-low'), null)
 })
 
 test('fetchAvailableModels falls back to the static ids', async () => {
